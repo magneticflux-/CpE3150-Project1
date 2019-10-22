@@ -26,6 +26,14 @@ out SPL, r16
 ldi r16, 0b00000000
 out DDRA, r16
 
+; Variable initialization
+ldi r16, 0x00
+sts lastButtonState, r16
+sts currentButtonState, r16
+sts buttonJustPressed, r16
+sts buttonJustReleased, r16
+sts counter, r16
+
 start:
 	rcall loadButtonState
 	rcall handleCounter
