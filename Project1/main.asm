@@ -25,6 +25,10 @@ out SPL, r16
 ; I/O setup
 ldi r16, 0b00000000
 out DDRA, r16
+ldi r16, 0b11111111
+out PORTA, r16
+ldi r16, 0b11111111
+out DDRD, r16
 
 ; Variable initialization
 ldi r16, 0x00
@@ -73,6 +77,10 @@ handleCounter:
 	dec r16
 
 	andi r16, 0b00001111 ; Clear 4 MSB so value stays in 0x00-0x0F
+
+	com r16
+	out PORTD, r16 ; 1 = light off
+	com r16
 
 	sts counter, r16
 	ret
