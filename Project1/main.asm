@@ -67,15 +67,8 @@ loadButtonState:
 
 	mov r16, r3
 	cpi r16, 0
-	breq return
-
-	ldi r16, 0
-	loop1: ldi r17, 0
-	loop2: inc r17
-	brne loop2
-	inc r16
-	brne loop1
-
+	breq return ; If no buttons are just pressed, return immediately
+	rcall delay1 ; Delay for debounce
 	return: ret
 
 handleCounter:
@@ -94,4 +87,13 @@ handleCounter:
 	com r16
 
 	sts counter, r16
+	ret
+
+delay1:
+	ldi r16, 0
+	loop1: ldi r17, 0
+	loop2: inc r17
+	brne loop2
+	inc r16
+	brne loop1
 	ret
