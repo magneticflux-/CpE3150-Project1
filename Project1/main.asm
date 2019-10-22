@@ -65,7 +65,18 @@ loadButtonState:
 	and r3, r0
 	sts buttonJustReleased, r3
 
-	ret
+	mov r16, r3
+	cpi r16, 0
+	breq return
+
+	ldi r16, 0
+	loop1: ldi r17, 0
+	loop2: inc r17
+	brne loop2
+	inc r16
+	brne loop1
+
+	return: ret
 
 handleCounter:
 	lds r0, buttonJustPressed
