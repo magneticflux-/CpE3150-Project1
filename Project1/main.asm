@@ -45,6 +45,7 @@ loadButtonState:
 	sts lastButtonState, r0
 	; Get new currentButtonState (as r1)
 	in r1, PINA
+	com r1
 	sts currentButtonState, r1
 	
 	; Duplicate last and current to r2, r3
