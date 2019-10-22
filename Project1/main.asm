@@ -2,11 +2,18 @@
 ; Project1.asm
 ;
 ; Created: 10/16/2019 12:34:45 PM
-; Author : Mitchell
+; Author : Team 1
 ;
 
+; Stack setup
+ldi r16, high(RAMEND)
+out SPH, r16
+ldi r16, low(RAMEND)
+out SPL, r16
 
-; Replace with your application code
+; I/O setup
+ldi r16, 0b00000000
+out DDRA, r16
+
 start:
-    inc r16
-    rjmp start
+	rjmp start
