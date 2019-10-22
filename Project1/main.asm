@@ -6,10 +6,14 @@
 ;
 
 .dseg
+; Button data
 lastButtonState: .byte 1
 currentButtonState: .byte 1
 buttonJustPressed: .byte 1
 buttonJustReleased: .byte 1
+
+; Counter
+counter: .byte 1
 
 .cseg
 ; Stack setup
@@ -22,8 +26,17 @@ out SPL, r16
 ldi r16, 0b00000000
 out DDRA, r16
 
+; Variable initialization
+ldi r16, 0x00
+sts lastButtonState, r16
+sts currentButtonState, r16
+sts buttonJustPressed, r16
+sts buttonJustReleased, r16
+sts counter, r16
+
 start:
 	rcall loadButtonState
+	rcall handleCounter
 	rjmp start
 
 loadButtonState:
@@ -47,4 +60,18 @@ loadButtonState:
 	and r3, r0
 	sts buttonJustReleased, r3
 
+	ret
+
+handleCounter:
+	lds r0, buttonJustPressed
+	lds r16, counter
+
+	sbrc r0, 0 ; Increment if button 0 is just pressed
+	inc r16
+	sbrc r0, 1 ; Decrement if button 1 is just pressed
+	dec r16
+
+	andi r16, 0b00001111 ; Clear 4 MSB so value stays in 0x00-0x0F
+
+	sts counter, r16
 	ret
