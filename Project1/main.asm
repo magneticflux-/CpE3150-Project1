@@ -26,12 +26,17 @@ ldi r16, low(RAMEND)
 out SPL, r16
 
 ; I/O setup
+; PINA input
 ldi r16, 0b00000000
 out DDRA, r16
 ldi r16, 0b11111111
 out PORTA, r16
+; PORTD output
 ldi r16, 0b11111111
 out DDRD, r16
+; PORTE.4 output
+ldi r16, 0b00010000
+out DDRE, r16
 
 ; Variable initialization
 ldi r16, 0x00
@@ -108,7 +113,7 @@ handleToneGenerator:
 	lds r16, toneGenFreq
 
 	sbrc r0, 4 ; Play tone
-	nop
+	rcall playTone
 	sbrc r0, 2 ; Increase frequency
 	inc r16
 	sbrc r0, 5 ; Decrease frequency
@@ -118,4 +123,23 @@ handleToneGenerator:
 
 	ret
 
+playTone:
+	ldi r17, 0x00
+	toneLoop: inc r17
+	rcall playPeriod
+	brne toneLoop
+	ret
+
+playPeriod:
+	; r16 is freq
+	mov r18, r16
+	sbi PORTE, 4
+	toneLoopOn: dec r18
+	brne toneLoopOn
+
+	mov r18, r16
+	cbi PORTE, 4
+	toneLoopOff: dec r18
+	brne toneLoopOff
 	
+	ret
