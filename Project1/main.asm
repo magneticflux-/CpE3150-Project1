@@ -37,10 +37,12 @@ sts currentButtonState, r16
 sts buttonJustPressed, r16
 sts buttonJustReleased, r16
 sts counter, r16
+sts toneGenFreq, r16
 
 start:
 	rcall loadButtonState
 	rcall handleCounter
+	rcall zachFeature
 	rjmp start
 
 loadButtonState:
@@ -99,10 +101,34 @@ delay1:
 	ret
 
 zachFeature:
-	ldi r16, 0x04
-	ldi r17, 0x16
-	rcall loadButtonState
 	lds r0, buttonJustPressed
-	sbrc r0, 5 ; Produce a sound and turn light on if button 5 is just pressed
-	out PORTD, r17
-	out PORTE, r16
+	lds r16, toneGenFreq
+
+	sbrc r0, 5 ; Produce a jingle and turn light on if button 5 is just pressed
+	rcall playJingle
+	inc r16
+	rcall playJingle
+	inc r16
+	rcall playJingle
+
+	ret
+
+playJingle:
+	ldi r17, 0x00
+	jingleLoop: inc r17
+	rcall playJinglePeriod
+	brne jingleLoop
+	ret
+
+playJinglePeriod:
+	mov r18, r16
+	sbi PORTE, 4
+	jinglePeriodON: dec r18
+	brne jinglePeriodON
+
+	mov r18, r16
+	cbi PORTE, 4
+	jinglePeriodOFF: dec r18
+	brne jinglePeriodOFF
+
+	ret
