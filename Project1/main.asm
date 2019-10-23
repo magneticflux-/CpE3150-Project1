@@ -97,3 +97,12 @@ delay1:
 	inc r16
 	brne loop1
 	ret
+
+zachFeature:
+	ldi r16, 0x04
+	ldi r17, 0x16
+	rcall loadButtonState
+	lds r0, buttonJustPressed
+	sbrc r0, 5 ; Produce a sound and turn light on if button 5 is just pressed
+	out PORTD, r17
+	out PORTE, r16
