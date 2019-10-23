@@ -15,6 +15,9 @@ buttonJustReleased: .byte 1
 ; Counter
 counter: .byte 1
 
+; Tone Generator
+toneGenFreq: .byte 1
+
 .cseg
 ; Stack setup
 ldi r16, high(RAMEND)
@@ -37,10 +40,12 @@ sts currentButtonState, r16
 sts buttonJustPressed, r16
 sts buttonJustReleased, r16
 sts counter, r16
+sts toneGenFreq, r16
 
 start:
 	rcall loadButtonState
 	rcall handleCounter
+	rcall handleToneGenerator
 	rjmp start
 
 loadButtonState:
@@ -97,3 +102,20 @@ delay1:
 	inc r16
 	brne loop1
 	ret
+
+handleToneGenerator:
+	lds r0, buttonJustPressed
+	lds r16, toneGenFreq
+
+	sbrc r0, 4 ; Play tone
+	nop
+	sbrc r0, 2 ; Increase frequency
+	inc r16
+	sbrc r0, 5 ; Decrease frequency
+	dec r16
+
+	sts toneGenFreq, r16
+
+	ret
+
+	
