@@ -15,6 +15,9 @@ buttonJustReleased: .byte 1
 ; Counter
 counter: .byte 1
 
+; Tone Generator
+toneGenFreq: .byte 1
+
 .cseg
 ; Stack setup
 ldi r16, high(RAMEND)
@@ -23,12 +26,17 @@ ldi r16, low(RAMEND)
 out SPL, r16
 
 ; I/O setup
+; PINA input
 ldi r16, 0b00000000
 out DDRA, r16
 ldi r16, 0b11111111
 out PORTA, r16
+; PORTD output
 ldi r16, 0b11111111
 out DDRD, r16
+; PORTE.4 output
+ldi r16, 0b00010000
+out DDRE, r16
 
 ; Variable initialization
 ldi r16, 0x00
@@ -37,10 +45,13 @@ sts currentButtonState, r16
 sts buttonJustPressed, r16
 sts buttonJustReleased, r16
 sts counter, r16
+ldi r16, 0b00000100
+sts toneGenFreq, r16
 
 start:
 	rcall loadButtonState
 	rcall handleCounter
+	rcall handleToneGenerator
 	rjmp start
 
 loadButtonState:
@@ -96,4 +107,59 @@ delay1:
 	brne loop2
 	inc r16
 	brne loop1
+	ret
+
+handleToneGenerator:
+	lds r0, buttonJustPressed
+	lds r16, toneGenFreq
+
+	sbrc r0, 3 ; Play tone
+	rcall playTone
+	sbrc r0, 2 ; Increase frequency
+	;inc r16
+	lsl r16
+	sbrc r0, 4 ; Decrease frequency
+	;dec r16
+	lsr r16
+
+	; Reset delay to 1 if it is 0
+	cpi r16, 0
+	brne noReset
+	ldi r16, 1
+	noReset:
+
+	sts toneGenFreq, r16
+
+	ret
+
+playTone:
+	; r0, r16 used
+	ldi r17, 0x00
+	toneLoop1: ldi r18, 0x00
+	toneLoop2: inc r18
+	rcall playPeriod
+	brne toneLoop2
+	inc r17
+	brne toneLoop1
+	ret
+
+playPeriod:
+	; r0, r16, r17, r18 used
+
+	mov r19, r16
+	sbi PORTE, 4
+	toneLoopOn1: ldi r20, 0x00
+	toneLoopOn2: dec r20
+	brne toneLoopOn2
+	dec r19
+	brne toneLoopOn1
+	
+	mov r19, r16
+	cbi PORTE, 4
+	toneLoopOff1: ldi r20, 0x00
+	toneLoopOff2: dec r20
+	brne toneLoopOff2
+	dec r19
+	brne toneLoopOff1
+	
 	ret
