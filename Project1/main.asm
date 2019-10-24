@@ -112,7 +112,7 @@ delay1:
 	ret
 
 jingleFeature:
-	lds r0, buttonJustPressed
+	lds r0, buttonJustPressed ; check to see which button is pressed and set it to register 0
 
 	sbrc r0, 5 ; play jingle if button 5 is pressed
 	rcall jingleTime
@@ -120,20 +120,20 @@ jingleFeature:
 	ret
 
 jingleTime:
-	lds r16, toneGenFreq
+	lds r16, toneGenFreq ; set the tone frequency to register 16, can be adjusted via handleToneGenerator function
 	ldi r21, 0b00010000 ; load registers to output to LEDs to sync with jingle
 	ldi r22, 0b00100000
 	ldi r23, 0b01000000
 
-	com r21
+	com r21 ; compliment register 21 for proper LED display
 	out PORTD, r21
 	rcall playJingle
 	lsl r16 ; increase the frequency
-	com r22
+	com r22 ; compliment register 22 for proper LED display
 	out PORTD, r22
 	rcall playJingle
 	lsl r16 ; increase the frequency again
-	com r23
+	com r23 ; compliment register 23 for proper LED display
 	out PORTD, r23
 	rcall playJingle
 
@@ -143,7 +143,7 @@ playJingle:
 	ldi r17, 0x00
 	jingleLoop1: ldi r18, 0x00
 	jingleLoop2: inc r18
-	rcall jinglePeriod
+	rcall jinglePeriod ; call jinglePeriod to delay input to speaker for desired output
 	brne jingleLoop2
 	inc r17
 	brne jingleLoop1
@@ -151,16 +151,16 @@ playJingle:
 	ret
 
 jinglePeriod:
-	mov r19, r16
-	sbi PORTE, 4
+	mov r19, r16 ; move the frequency into register 19
+	sbi PORTE, 4 ; set PORTE to bit 4 for speaker
 	jingleLoopON1: ldi r20, 0x00
 	jingleLoopON2: dec r20
 	brne jingleLoopON2
 	dec r19
 	brne jingleLoopON1
 
-	mov r19, r16
-	cbi PORTE, 4
+	mov r19, r16 ; move the frequency into register 19
+	cbi PORTE, 4 ; clear PORTE
 	jingleLoopOFF1: ldi r20, 0x00
 	jingleLoopOFF2: dec r20
 	brne jingleLoopOFF2
