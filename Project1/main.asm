@@ -45,6 +45,7 @@ sts currentButtonState, r16
 sts buttonJustPressed, r16
 sts buttonJustReleased, r16
 sts counter, r16
+ldi r16, 0b00000100
 sts toneGenFreq, r16
 
 start:
@@ -112,34 +113,53 @@ handleToneGenerator:
 	lds r0, buttonJustPressed
 	lds r16, toneGenFreq
 
-	sbrc r0, 4 ; Play tone
+	sbrc r0, 3 ; Play tone
 	rcall playTone
 	sbrc r0, 2 ; Increase frequency
-	inc r16
-	sbrc r0, 5 ; Decrease frequency
-	dec r16
+	;inc r16
+	lsl r16
+	sbrc r0, 4 ; Decrease frequency
+	;dec r16
+	lsr r16
+
+	; Reset delay to 1 if it is 0
+	cpi r16, 0
+	brne noReset
+	ldi r16, 1
+	noReset:
 
 	sts toneGenFreq, r16
 
 	ret
 
 playTone:
+	; r0, r16 used
 	ldi r17, 0x00
-	toneLoop: inc r17
+	toneLoop1: ldi r18, 0x00
+	toneLoop2: inc r18
 	rcall playPeriod
-	brne toneLoop
+	brne toneLoop2
+	inc r17
+	brne toneLoop1
 	ret
 
 playPeriod:
-	; r16 is freq
-	mov r18, r16
-	sbi PORTE, 4
-	toneLoopOn: dec r18
-	brne toneLoopOn
+	; r0, r16, r17, r18 used
 
-	mov r18, r16
+	mov r19, r16
+	sbi PORTE, 4
+	toneLoopOn1: ldi r20, 0x00
+	toneLoopOn2: dec r20
+	brne toneLoopOn2
+	dec r19
+	brne toneLoopOn1
+	
+	mov r19, r16
 	cbi PORTE, 4
-	toneLoopOff: dec r18
-	brne toneLoopOff
+	toneLoopOff1: ldi r20, 0x00
+	toneLoopOff2: dec r20
+	brne toneLoopOff2
+	dec r19
+	brne toneLoopOff1
 	
 	ret
