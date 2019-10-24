@@ -51,7 +51,6 @@ sts toneGenFreq, r16
 start:
 	rcall loadButtonState
 	rcall handleCounter
-	rcall jingleFeature
 	rcall handleToneGenerator
 	rjmp start
 
