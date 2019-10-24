@@ -112,27 +112,27 @@ delay1:
 increment:
 	inc r16
 	ldi r17, 16
-	cpse r16, r17
+	cpse r16, r17 ;check if counter is at 16
 	ret
-	rcall overflowAlarm
+	rcall overflowAlarm ;sound overflow alarm if so
 	ret
 
 decrement:
 	dec r16
 	ldi r17, 255
-	cpse r16, r17
+	cpse r16, r17 ; check if counter is at 255
 	ret 
-	rcall overflowAlarm
+	rcall overflowAlarm; sound overflow alarm if so
 	ret
 
 
 overflowAlarm:
 	ldi r21, 2
 	loopb: ldi r18, 0xFF
-	loopa: sbi PORTE, 4
-	rcall alarmDelay
-	cbi PORTE, 4
-	rcall alarmDelay
+	loopa: sbi PORTE, 4 ;set PORTE4 bit
+	rcall alarmDelay ;call .5 ms delay
+	cbi PORTE, 4 ;clear PORTE4 bit
+	rcall alarmDelay ;call .5 ms delay
 	dec r18
 	brne loopa
 	dec r21
@@ -141,7 +141,7 @@ overflowAlarm:
 	ret
 
 alarmDelay:
-	ldi r20, 10
+	ldi r20, 10 ;loop of about .5 miliseconds for about 1000Hz wave 
 	loop3: ldi r19, 0
 	loop4: inc r19
 	brne loop4
@@ -151,15 +151,15 @@ alarmDelay:
 
 overflowLights:
 	ldi r18, 0b00001111
-	out PORTD, r18
-	ldi r21, 2
+	out PORTD, r18 ;clear 4 MSB to light top LEDs
+	ldi r21, 2 ;begin loop to keep LEDs on
 	loopc: ldi r18, 0xFF
 	loopd: dec r18
 	brne loopd
 	dec r21
 	brne loopc
 	ldi r18, 0xFF
-	out PORTD, r18
+	out PORTD, r18 ;set all bits to shut LEDs off
 	ret
 
 handleToneGenerator:
