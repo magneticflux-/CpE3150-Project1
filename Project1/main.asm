@@ -52,6 +52,8 @@ start:
 	rcall loadButtonState
 	rcall handleCounter
 	rcall handleToneGenerator
+	rcall playNumber
+	rcall jingleFeature
 	rjmp start
 
 loadButtonState:
@@ -109,6 +111,64 @@ delay1:
 	brne loop1
 	ret
 
+jingleFeature:
+	lds r0, buttonJustPressed ; check to see which button is pressed and set it to register 0
+
+	sbrc r0, 5 ; play jingle if button 5 is pressed
+	rcall jingleTime
+
+	ret
+
+jingleTime:
+	lds r16, toneGenFreq ; set the tone frequency to register 16, can be adjusted via handleToneGenerator function
+	ldi r21, 0b00010000 ; load registers to output to LEDs to sync with jingle
+	ldi r22, 0b00100000
+	ldi r23, 0b01000000
+
+	com r21 ; compliment register 21 for proper LED display
+	out PORTD, r21
+	rcall playJingle
+	lsl r16 ; increase the frequency
+	com r22 ; compliment register 22 for proper LED display
+	out PORTD, r22
+	rcall playJingle
+	lsl r16 ; increase the frequency again
+	com r23 ; compliment register 23 for proper LED display
+	out PORTD, r23
+	rcall playJingle
+
+	ret
+
+playJingle:
+	ldi r17, 0x00
+	jingleLoop1: ldi r18, 0x00
+	jingleLoop2: inc r18
+	rcall jinglePeriod ; call jinglePeriod to delay input to speaker for desired output
+	brne jingleLoop2
+	inc r17
+	brne jingleLoop1
+
+	ret
+
+jinglePeriod:
+	mov r19, r16 ; move the frequency into register 19
+	sbi PORTE, 4 ; set PORTE to bit 4 for speaker
+	jingleLoopON1: ldi r20, 0x00
+	jingleLoopON2: dec r20
+	brne jingleLoopON2
+	dec r19
+	brne jingleLoopON1
+
+	mov r19, r16 ; move the frequency into register 19
+	cbi PORTE, 4 ; clear PORTE
+	jingleLoopOFF1: ldi r20, 0x00
+	jingleLoopOFF2: dec r20
+	brne jingleLoopOFF2
+	dec r19
+	brne jingleLoopOFF1
+
+	ret
+
 increment:
 	inc r16
 	ldi r17, 16
@@ -153,8 +213,11 @@ overflowLights:
 	ldi r18, 0b00001111
 	out PORTD, r18 ;clear 4 MSB to light top LEDs
 	ldi r21, 2 ;begin loop to keep LEDs on
+	out PORTD, r18
+	ldi r21, 4
 	loopc: ldi r18, 0xFF
-	loopd: dec r18
+	loopd: rcall alarmDelay
+	dec r18
 	brne loopd
 	dec r21
 	brne loopc
@@ -187,6 +250,8 @@ handleToneGenerator:
 
 playTone:
 	; r0, r16 used
+
+	; Loop wave period 256*256 times
 	ldi r17, 0x00
 	toneLoop1: ldi r18, 0x00
 	toneLoop2: inc r18
@@ -194,11 +259,13 @@ playTone:
 	brne toneLoop2
 	inc r17
 	brne toneLoop1
+
 	ret
 
 playPeriod:
 	; r0, r16, r17, r18 used
 
+	; On for 256 * count loops
 	mov r19, r16
 	sbi PORTE, 4
 	toneLoopOn1: ldi r20, 0x00
@@ -207,6 +274,7 @@ playPeriod:
 	dec r19
 	brne toneLoopOn1
 	
+	; Off for 256 * count loops
 	mov r19, r16
 	cbi PORTE, 4
 	toneLoopOff1: ldi r20, 0x00
@@ -214,5 +282,40 @@ playPeriod:
 	brne toneLoopOff2
 	dec r19
 	brne toneLoopOff1
+	
+	ret
+
+playNumber:
+	lds r0, buttonJustPressed; get status of button	
+	sbrs r0, 6; check to make sure switch 8 was pressed
+	rjmp skip;if it was not then skip whole function to return
+	lds r16, counter; load r16 with counter value
+	cpi r16, 0;check to see if the counter is at 0
+	breq skip; if it is then skip function to return
+	
+	loopPlayNumberC: ldi r21, 1;loop for each count
+	loopPlayNumberB: ldi r18, 0xFF;loop B and A are for the actual sound going off
+	loopPlayNumberA: sbi PORTE, 4
+	rcall alarmDelay
+	cbi PORTE, 4
+	rcall alarmDelay
+	dec r18
+	brne loopPlayNumberA
+	dec r21
+	brne loopPlayNumberB
+	
+	ldi r22, 1
+	loopPlayNumberD: ldi r17, 0xFF; loop D and E are for a delay roughly 
+	loopPlayNumberE: rcall alarmDelay;the same length as the alarm going off
+	rcall alarmDelay
+	dec r17
+	brne loopPlayNumberE
+	dec r22
+	brne loopPlayNumberD
+
+	dec r16
+	brne loopPlayNumberC
+	
+	skip: nop 
 	
 	ret
