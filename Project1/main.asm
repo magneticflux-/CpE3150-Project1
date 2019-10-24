@@ -51,7 +51,6 @@ sts toneGenFreq, r16
 start:
 	rcall loadButtonState
 	rcall handleCounter
-	rcall jingleFeature
 	rcall handleToneGenerator
 	rjmp start
 
@@ -109,53 +108,6 @@ delay1:
 	inc r16
 	brne loop1
 	ret
-
-jingleFeature:
-	lds r0, buttonJustPressed
-	lds r16, toneGenFreq
-
-	ldi r21, 0b00010000 ; registers are loaded with binary values to trigger lights for jingle
-	ldi r22, 0b00100000
-	ldi r23, 0b01000000
-
-	sbrc r0, 5 ; play jingle if button 5 is pressed
-	out PORTD, r21
-	rcall playJingle
-	lsl r16 ; increase the frequency
-	out PORTD, r22
-	rcall playJingle
-	lsr r16 ; increase the frequency again
-	out PORTD, r23
-	rcall playJingle
-
-	ret
-
-playJingle:
-	ldi r17, 0x00
-	jingleLoop1: ldi r18, 0x00
-	jingleLoop2: inc r18
-	rcall jinglePeriod
-	brne jingleLoop2
-	inc r17
-	brne jingleLoop1
-	ret
-
-jinglePeriod:
-	mov r19, r16
-	sbi PORTE, 4
-	jingleLoopON1: ldi r20, 0x00
-	jingleLoopON2: dec r20
-	brne jingleLoopON2
-	dec r19
-	brne jingleLoopON1
-
-	mov r19, r16
-	cbi PORTE, 4
-	jingleLoopOFF1: ldi r20, 0x00
-	jingleLoopOFF2: dec r20
-	brne jingleLoopOFF2
-	dec r19
-	brne jingleLoopOFF1
 
 increment:
 	inc r16
