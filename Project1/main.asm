@@ -124,12 +124,15 @@ jingleTime:
 	ldi r22, 0b00100000
 	ldi r23, 0b01000000
 
+	com r21
 	out PORTD, r21
 	rcall playJingle
 	lsl r16 ; increase the frequency
+	com r22
 	out PORTD, r22
 	rcall playJingle
 	lsl r16 ; increase the frequency again
+	com r23
 	out PORTD, r23
 	rcall playJingle
 
