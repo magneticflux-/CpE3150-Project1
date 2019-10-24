@@ -114,11 +114,16 @@ jingleFeature:
 	lds r0, buttonJustPressed
 	lds r16, toneGenFreq
 
-	ldi r21, 0b00010000 ; registers are loaded with binary values to trigger lights for jingle
+	sbrc r0, 5 ; play jingle if button 5 is pressed
+	rcall jingleTime
+
+	ret
+
+jingleTime:
+	ldi r21, 0b00010000 ; load registers to output to LEDs to sync with jingle
 	ldi r22, 0b00100000
 	ldi r23, 0b01000000
 
-	sbrc r0, 5 ; play jingle if button 5 is pressed
 	out PORTD, r21
 	rcall playJingle
 	lsl r16 ; increase the frequency
