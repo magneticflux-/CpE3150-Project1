@@ -127,7 +127,7 @@ decrement:
 
 
 overflowAlarm:
-	ldi r21, 8
+	ldi r21, 2
 	loopb: ldi r18, 0xFF
 	loopa: sbi PORTE, 4
 	rcall alarmDelay
@@ -150,7 +150,7 @@ alarmDelay:
 	ret
 
 overflowLights:
-	ldi r18, 0b00001111
+	ldi r18, 0b11111111
 	out PORTD, r18
 	ret
 
