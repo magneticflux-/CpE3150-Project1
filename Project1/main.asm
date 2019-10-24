@@ -124,7 +124,7 @@ jingleFeature:
 	lsl r16 ; increase the frequency
 	out PORTD, r22
 	rcall playJingle
-	lsr r16 ; increase the frequency again
+	lsl r16 ; increase the frequency again
 	out PORTD, r23
 	rcall playJingle
 
@@ -138,6 +138,7 @@ playJingle:
 	brne jingleLoop2
 	inc r17
 	brne jingleLoop1
+
 	ret
 
 jinglePeriod:
@@ -156,6 +157,8 @@ jinglePeriod:
 	brne jingleLoopOFF2
 	dec r19
 	brne jingleLoopOFF1
+
+	ret
 
 increment:
 	inc r16
