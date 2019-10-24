@@ -279,15 +279,15 @@ playPeriod:
 	ret
 
 playNumber:
-	lds r0, buttonJustPressed
-	sbrs r0, 6
-	rjmp skip
-	lds r16, counter
-	cpi r16, 0
-	breq skip
+	lds r0, buttonJustPressed; get status of button	
+	sbrs r0, 6; check to make sure switch 8 was pressed
+	rjmp skip;if it was not then skip whole function to return
+	lds r16, counter; load r16 with counter value
+	cpi r16, 0;check to see if the counter is at 0
+	breq skip; if it is then skip function to return
 	
-	loopPlayNumberC: ldi r21, 1
-	loopPlayNumberB: ldi r18, 0xFF
+	loopPlayNumberC: ldi r21, 1;loop for each count
+	loopPlayNumberB: ldi r18, 0xFF;loop B and A are for the actual sound going off
 	loopPlayNumberA: sbi PORTE, 4
 	rcall alarmDelay
 	cbi PORTE, 4
@@ -298,8 +298,8 @@ playNumber:
 	brne loopPlayNumberB
 	
 	ldi r22, 1
-	loopPlayNumberD: ldi r17, 0xFF
-	loopPlayNumberE: rcall alarmDelay
+	loopPlayNumberD: ldi r17, 0xFF; loop D and E are for a delay roughly 
+	loopPlayNumberE: rcall alarmDelay;the same length as the alarm going off
 	rcall alarmDelay
 	dec r17
 	brne loopPlayNumberE
