@@ -112,7 +112,6 @@ delay1:
 
 jingleFeature:
 	lds r0, buttonJustPressed
-	lds r16, toneGenFreq
 
 	sbrc r0, 5 ; play jingle if button 5 is pressed
 	rcall jingleTime
@@ -120,6 +119,7 @@ jingleFeature:
 	ret
 
 jingleTime:
+	lds r16, toneGenFreq
 	ldi r21, 0b00010000 ; load registers to output to LEDs to sync with jingle
 	ldi r22, 0b00100000
 	ldi r23, 0b01000000
