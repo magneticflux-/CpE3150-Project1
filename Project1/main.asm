@@ -151,7 +151,16 @@ alarmDelay:
 	ret
 
 overflowLights:
-	ldi r18, 0b11111111
+	ldi r18, 0b00001111
+	out PORTD, r18
+	ldi r21, 4
+	loopc: ldi r18, 0xFF
+	loopd: rcall alarmDelay
+	dec r18
+	brne loopd
+	dec r21
+	brne loopc
+	ldi r18, 0xFF
 	out PORTD, r18
 	ret
 
