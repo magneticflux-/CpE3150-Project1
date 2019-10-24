@@ -52,6 +52,7 @@ start:
 	rcall loadButtonState
 	rcall handleCounter
 	rcall handleToneGenerator
+	rcall playNumber
 	rjmp start
 
 loadButtonState:
@@ -206,5 +207,30 @@ playPeriod:
 	brne toneLoopOff2
 	dec r19
 	brne toneLoopOff1
+	
+	ret
+
+playNumber:
+	lds r0, buttonJustPressed
+	sbrs r0, 6
+	rjmp skip
+	lds r16, counter
+	cpi r16, 0
+	breq skip
+	
+	loopc: ldi r21, 1
+	loopb: ldi r18, 0xFF
+	loopa: sbi PORTE, 4
+	rcall alarmDelay
+	cbi PORTE, 4
+	rcall alarmDelay
+	dec r18
+	brne loopa
+	dec r21
+	brne loopb
+	dec r16
+	brne loopc
+	
+	skip: nop 
 	
 	ret
