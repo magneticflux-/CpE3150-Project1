@@ -53,6 +53,7 @@ start:
 	rcall handleCounter
 	rcall handleToneGenerator
 	rcall playNumber
+	rcall jingleFeature
 	rjmp start
 
 loadButtonState:
@@ -108,6 +109,64 @@ delay1:
 	brne loop2
 	inc r16
 	brne loop1
+	ret
+
+jingleFeature:
+	lds r0, buttonJustPressed
+
+	sbrc r0, 5 ; play jingle if button 5 is pressed
+	rcall jingleTime
+
+	ret
+
+jingleTime:
+	lds r16, toneGenFreq
+	ldi r21, 0b00010000 ; load registers to output to LEDs to sync with jingle
+	ldi r22, 0b00100000
+	ldi r23, 0b01000000
+
+	com r21
+	out PORTD, r21
+	rcall playJingle
+	lsl r16 ; increase the frequency
+	com r22
+	out PORTD, r22
+	rcall playJingle
+	lsl r16 ; increase the frequency again
+	com r23
+	out PORTD, r23
+	rcall playJingle
+
+	ret
+
+playJingle:
+	ldi r17, 0x00
+	jingleLoop1: ldi r18, 0x00
+	jingleLoop2: inc r18
+	rcall jinglePeriod
+	brne jingleLoop2
+	inc r17
+	brne jingleLoop1
+
+	ret
+
+jinglePeriod:
+	mov r19, r16
+	sbi PORTE, 4
+	jingleLoopON1: ldi r20, 0x00
+	jingleLoopON2: dec r20
+	brne jingleLoopON2
+	dec r19
+	brne jingleLoopON1
+
+	mov r19, r16
+	cbi PORTE, 4
+	jingleLoopOFF1: ldi r20, 0x00
+	jingleLoopOFF2: dec r20
+	brne jingleLoopOFF2
+	dec r19
+	brne jingleLoopOFF1
+
 	ret
 
 increment:
