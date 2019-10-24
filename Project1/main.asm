@@ -228,6 +228,16 @@ playNumber:
 	brne loopPlayNumberA
 	dec r21
 	brne loopPlayNumberB
+	
+	ldi r22, 1
+	loopPlayNumberD: ldi r17, 0xFF
+	loopPlayNumberE: rcall alarmDelay
+	rcall alarmDelay
+	dec r17
+	brne loopPlayNumberE
+	dec r22
+	brne loopPlayNumberD
+
 	dec r16
 	brne loopPlayNumberC
 	
