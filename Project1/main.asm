@@ -248,6 +248,8 @@ handleToneGenerator:
 
 playTone:
 	; r0, r16 used
+
+	; Loop wave period 256*256 times
 	ldi r17, 0x00
 	toneLoop1: ldi r18, 0x00
 	toneLoop2: inc r18
@@ -255,11 +257,13 @@ playTone:
 	brne toneLoop2
 	inc r17
 	brne toneLoop1
+
 	ret
 
 playPeriod:
 	; r0, r16, r17, r18 used
 
+	; On for 256 * count loops
 	mov r19, r16
 	sbi PORTE, 4
 	toneLoopOn1: ldi r20, 0x00
@@ -268,6 +272,7 @@ playPeriod:
 	dec r19
 	brne toneLoopOn1
 	
+	; Off for 256 * count loops
 	mov r19, r16
 	cbi PORTE, 4
 	toneLoopOff1: ldi r20, 0x00
