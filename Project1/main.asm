@@ -218,18 +218,18 @@ playNumber:
 	cpi r16, 0
 	breq skip
 	
-	loopc: ldi r21, 1
-	loopb: ldi r18, 0xFF
-	loopa: sbi PORTE, 4
+	loopPlayNumberC: ldi r21, 1
+	loopPlayNumberB: ldi r18, 0xFF
+	loopPlayNumberA: sbi PORTE, 4
 	rcall alarmDelay
 	cbi PORTE, 4
 	rcall alarmDelay
 	dec r18
-	brne loopa
+	brne loopPlayNumberA
 	dec r21
-	brne loopb
+	brne loopPlayNumberB
 	dec r16
-	brne loopc
+	brne loopPlayNumberC
 	
 	skip: nop 
 	
