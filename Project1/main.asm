@@ -52,6 +52,7 @@ start:
 	rcall loadButtonState
 	rcall handleCounter
 	rcall handleToneGenerator
+	rcall jingleFeature
 	rjmp start
 
 loadButtonState:
