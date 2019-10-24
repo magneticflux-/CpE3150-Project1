@@ -29,6 +29,8 @@ ldi r16, 0b11111111
 out PORTA, r16
 ldi r16, 0b11111111
 out DDRD, r16
+ldi r16, 0b00010000
+out DDRE, r17
 
 ; Variable initialization
 ldi r16, 0x00
@@ -76,9 +78,9 @@ handleCounter:
 	lds r16, counter
 
 	sbrc r0, 0 ; Increment if button 0 is just pressed
-	inc r16
+	rcall increment
 	sbrc r0, 1 ; Decrement if button 1 is just pressed
-	dec r16
+	rcall decrement
 
 	andi r16, 0b00001111 ; Clear 4 MSB so value stays in 0x00-0x0F
 
@@ -96,4 +98,49 @@ delay1:
 	brne loop2
 	inc r16
 	brne loop1
+	ret
+
+increment:
+	inc r16
+	ldi r17, 16
+	cpse r16, r17
+	ret
+	rcall overflowAlarm
+	ret
+
+decrement:
+	dec r16
+	ldi r17, 255
+	cpse r16, r17
+	ret 
+	rcall overflowAlarm
+	ret
+
+
+overflowAlarm:
+	ldi r21, 8
+	loopb: ldi r18, 0xFF
+	loopa: sbi PORTE, 4
+	rcall alarmDelay
+	cbi PORTE, 4
+	rcall alarmDelay
+	dec r18
+	brne loopa
+	dec r21
+	brne loopb
+	rcall overflowLights
+	ret
+
+alarmDelay:
+	ldi r20, 10
+	loop3: ldi r19, 0
+	loop4: inc r19
+	brne loop4
+	dec r20
+	brne loop3
+	ret
+
+overflowLights:
+	ldi r18, 0b00001111
+	out PORTD, r18
 	ret
